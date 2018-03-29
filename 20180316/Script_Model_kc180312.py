@@ -26,7 +26,7 @@ Created on Mon Dec 11 17:24:28 2017
 """
 
 from Core_Model_kc180312 import core_model_loop
-from Preprocess_Input_kc180312 import preprocess_input
+from Preprocess_Input_kc180328 import preprocess_input
 #from Postprocess_Results_kc180214 import postprocess_key_scalar_results,merge_two_dicts
 from Save_Basic_Results_kc180312 import save_basic_results
 
@@ -34,7 +34,7 @@ from Save_Basic_Results_kc180312 import save_basic_results
 
 # directory = "D:/M/WORK/"
 #root_directory = "/Users/kcaldeira/Google Drive/simple energy system model/Kens version/"
-root_directory = "/Users/Ken/Google Drive/simple energy system model/Kens version/"
+root_directory = "/Users/Ken/Google Drive/simple energy system model/20180316/"
 
 
 # -----------------------------------------------------------------------------
@@ -68,12 +68,12 @@ verbose = True # print output on each loop
 
 # =============================================================================
 
-base_case_switch = 'idealized'
+
 case_list = [
-        'natgas_storage',
-        'wind_storage',
-        'nuclear_storage',
-        'solar_storage'
+        'natgas_storage'
+#        'wind_storage'
+#        'nuclear_storage',
+#        'solar_storage'
 #        'nuc_bat'
 #        'solar_wind_bat'
 #        'nuclear_solar_wind_bat'
@@ -102,7 +102,6 @@ for case_switch in case_list:
     
     file_info, time_series, assumption_list = preprocess_input(
         root_directory,
-        base_case_switch,
         case_switch,
         hour_simulation_start,
         hours_of_simulation,

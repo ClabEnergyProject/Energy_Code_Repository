@@ -34,8 +34,7 @@ from Save_Basic_Results import save_basic_results
 
 # directory = "D:/M/WORK/"
 #root_directory = "/Users/kcaldeira/Google Drive/simple energy system model/Kens version/"
-root_directory = "/Users/Ken/Google Drive/simple energy system model/20180316/"
-
+root_directory = "/Users/Ken/Google Drive/git/Energy_Code_Repository/SimpleEnergyModel_v0/"
 
 # -----------------------------------------------------------------------------
 hour_simulation_start = 0
@@ -47,31 +46,13 @@ hours_of_simulation = 8640 # 1 year
 
 verbose = True # print output on each loop
 # =============================================================================
-# Set base case switch
-
-#base_case_switch = 'realistic'
-#base_case_switch = 'idealized'
-
-# -----------------------------------------------------------------------------
-# Set case switch
-#case_switch = 'default'
-#case_switch = 'nuc_bat_unmet'
-#case_switch = 'gas_bat_unmet'
-#case_switch = 'solar_bat_unmet'
-#case_switch = 'wind_bat_unmet'
-#case_switch = 'solar_wind_bat_unmet'
-#case_switch = 'gas_solar_wind_bat_unmet'
-#case_switch = 'nuc_solar_wind_bat_unmet'
-#case_switch = 'gas_nuc_bat_unmet'
-#case_switch = 'all'
-#case_switch = 'all_2years'
 
 # =============================================================================
 
 
 case_list = [
-        'wind_storage'
-#        'nuclear_storage',
+#        'wind_storage'
+        'nuclear_storage'
 #        'solar_storage'
 #        'nuc_bat'
 #        'solar_wind_bat'

@@ -98,7 +98,7 @@ def pickle_raw_results(
         verbose
         ):
     output_folder = file_info['output_folder']
-    output_file_name = file_info['base_case_switch']+'_'+file_info['case_switch']+'.pickle'
+    output_file_name = file_info['case_switch']+'.pickle'
     
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)

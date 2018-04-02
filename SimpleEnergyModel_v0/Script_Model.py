@@ -29,12 +29,15 @@ from Core_Model import core_model_loop
 from Preprocess_Input import preprocess_input
 #from Postprocess_Results_kc180214 import postprocess_key_scalar_results,merge_two_dicts
 from Save_Basic_Results import save_basic_results
+import subprocess
 
 #%%
 
 # directory = "D:/M/WORK/"
 #root_directory = "/Users/kcaldeira/Google Drive/simple energy system model/Kens version/"
-root_directory = "/Users/Ken/Google Drive/git/Energy_Code_Repository/SimpleEnergyModel_v0/"
+whoami = subprocess.check_output('whoami')
+if whoami == 'kcaldeira-carbo\\kcaldeira\r\n':
+    root_directory = "/Users/kcaldeira/Google Drive/git/Energy_Code_Repository/SimpleEnergyModel_v0/"
 
 # -----------------------------------------------------------------------------
 hour_simulation_start = 0

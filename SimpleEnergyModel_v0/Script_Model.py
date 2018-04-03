@@ -54,9 +54,12 @@ verbose = True # print output on each loop
 
 case_list = [
 #        'wind_storage'
-        'nuclear_storage'
-#        'solar_storage'
-#        'nuc_bat'
+        'nuclear_storage',
+        'solar_storage',
+        'wind_storage',
+        'solar_wind_storage',
+        'natgas_storage',
+        'natgas_nuclear_solar_wind_storage'
 #        'solar_wind_bat'
 #        'nuclear_solar_wind_bat'
 #        'gas_bat'

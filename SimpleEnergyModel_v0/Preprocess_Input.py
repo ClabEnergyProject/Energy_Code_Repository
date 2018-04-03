@@ -111,11 +111,11 @@ def preprocess_input(
     
     if case_switch == 'nuclear_storage':
         system_components = ["nuclear","storage"]
-        fix_cost_nuclear = np.array([0.050,0.010,0.002])
+        fix_cost_nuclear = np.array([0.050])
         var_cost_nuclear = np.array([0.001])
 #        fix_cost_storage = np.array([.1,0.05,0.02,0.01,0.005,0.002,0.001,0.0005,0.0002,0.0001,0.00005,0.00002,0.00001,0.000005,0.000002,0.000001])  # $/kWh
 #        fix_cost_storage = np.array([1,0.5,0.2,0.1,0.05,0.02,0.01,0.005,0.002,0.001,0.0005,0.0002,0.0001,0.00005,0.00002,0.00001,0.000005,0.000002,0.000001,0.0000005,0.0000002,0.0000001,0.00000005,0.00000002,0.00000001])  # $/kWh
-        fix_cost_storage = np.array([0.001])  # $/kWh
+        fix_cost_storage = np.array([1e-8])  # $/kWh
         var_cost_storage = np.array([1e-8])  # no cost to storage, $/kWh/h
 #        var_cost_dispatch_from_storage = np.array([10**-2,10**-3,10**-4,10**-6,10**-8]) # $/kWh dispatched roundtrip
         var_cost_dispatch_from_storage = np.array([0]) # $/kWh dispatched roundtrip
@@ -132,7 +132,7 @@ def preprocess_input(
 #        var_cost_dispatch_from_storage = np.array([10**-2,10**-3,10**-4,10**-6,10**-8]) # $/kWh dispatched roundtrip
         var_cost_dispatch_from_storage = np.array([0]) # $/kWh dispatched roundtrip
         storage_charging_efficiency = np.array([1.0])
-        demand_flag = np.array([-1,1])  # time series, constant
+        demand_flag = np.array([-1])  # time series, constant
     elif case_switch == 'solar_storage':
         system_components = ["solar","storage"]
         fix_cost_solar = np.array([0.013])/0.222 # constant reflects capacity conversion to mean generation
@@ -144,12 +144,48 @@ def preprocess_input(
 #        var_cost_dispatch_from_storage = np.array([10**-2,10**-3,10**-4,10**-6,10**-8]) # $/kWh dispatched roundtrip
         var_cost_dispatch_from_storage = np.array([0]) # $/kWh dispatched roundtrip
         storage_charging_efficiency = np.array([1.0])
-        capacity_solar = np.array([-1,1.,1./(1.-0.1),1./(1.-0.2),1./(1.-0.25),1./(1.-1./3.),1./(1.-0.50)]) # capacity in terms of annual mean generation
-        demand_flag = np.array([-1,1])  # time series, constant
+        #capacity_solar = np.array([-1,1.,1./(1.-0.1),1./(1.-0.2),1./(1.-0.25),1./(1.-1./3.),1./(1.-0.50)]) # capacity in terms of annual mean generation
+        demand_flag = np.array([-1])  # time series, constant
     elif case_switch == 'natgas_storage':
         system_components = ["natgas","storage"]
         fix_cost_natgas = np.array([0.050])
         var_cost_natgas = np.array([0.001])
+#        fix_cost_storage = np.array([.1,0.05,0.02,0.01,0.005,0.002,0.001,0.0005,0.0002,0.0001,0.00005,0.00002,0.00001,0.000005,0.000002,0.000001])  # $/kWh
+#        fix_cost_storage = np.array([1,0.5,0.2,0.1,0.05,0.02,0.01,0.005,0.002,0.001,0.0005,0.0002,0.0001,0.00005,0.00002,0.00001,0.000005,0.000002,0.000001,0.0000005,0.0000002,0.0000001,0.00000005,0.00000002,0.00000001])  # $/kWh
+        fix_cost_storage = np.array([1e-8])  # $/kWh
+        var_cost_storage = np.array([1e-8])  # no cost to storage, $/kWh/h
+#        var_cost_dispatch_from_storage = np.array([10**-2,10**-3,10**-4,10**-6,10**-8]) # $/kWh dispatched roundtrip
+        var_cost_dispatch_from_storage = np.array([0]) # $/kWh dispatched roundtrip
+        storage_charging_efficiency = np.array([1.0])
+        demand_flag = np.array([-1])  # time series, constant
+    elif case_switch == 'solar_wind_storage':
+        system_components = ["solar","wind","storage"]
+        fix_cost_natgas = np.array([0.050])
+        var_cost_natgas = np.array([0.001])
+        fix_cost_nuclear = np.array([0.050])
+        var_cost_nuclear = np.array([0.001])
+        fix_cost_solar = np.array([0.013])/0.222 # constant reflects capacity conversion to mean generation
+        var_cost_solar = np.array([1e-8])/0.222 # constant reflects capacity conversion to mean generation
+        fix_cost_wind = np.array([0.013])/0.345 # constant reflects capacity conversion to mean generation
+        var_cost_wind = np.array([1e-8])/0.345 # constant reflects capacity conversion to mean generation
+#        fix_cost_storage = np.array([.1,0.05,0.02,0.01,0.005,0.002,0.001,0.0005,0.0002,0.0001,0.00005,0.00002,0.00001,0.000005,0.000002,0.000001])  # $/kWh
+#        fix_cost_storage = np.array([1,0.5,0.2,0.1,0.05,0.02,0.01,0.005,0.002,0.001,0.0005,0.0002,0.0001,0.00005,0.00002,0.00001,0.000005,0.000002,0.000001,0.0000005,0.0000002,0.0000001,0.00000005,0.00000002,0.00000001])  # $/kWh
+        fix_cost_storage = np.array([1e-8])  # $/kWh
+        var_cost_storage = np.array([1e-8])  # no cost to storage, $/kWh/h
+#        var_cost_dispatch_from_storage = np.array([10**-2,10**-3,10**-4,10**-6,10**-8]) # $/kWh dispatched roundtrip
+        var_cost_dispatch_from_storage = np.array([0]) # $/kWh dispatched roundtrip
+        storage_charging_efficiency = np.array([1.0])
+        demand_flag = np.array([-1])  # time series, constant
+    elif case_switch == 'natgas_nuclear_solar_wind_storage':
+        system_components = ["natgas","nuclear","solar","wind","storage"]
+        fix_cost_natgas = np.array([0.050])
+        var_cost_natgas = np.array([0.001])
+        fix_cost_nuclear = np.array([0.050])
+        var_cost_nuclear = np.array([0.001])
+        fix_cost_solar = np.array([0.013])/0.222 # constant reflects capacity conversion to mean generation
+        var_cost_solar = np.array([1e-8])/0.222 # constant reflects capacity conversion to mean generation
+        fix_cost_wind = np.array([0.013])/0.345 # constant reflects capacity conversion to mean generation
+        var_cost_wind = np.array([1e-8])/0.345 # constant reflects capacity conversion to mean generation
 #        fix_cost_storage = np.array([.1,0.05,0.02,0.01,0.005,0.002,0.001,0.0005,0.0002,0.0001,0.00005,0.00002,0.00001,0.000005,0.000002,0.000001])  # $/kWh
 #        fix_cost_storage = np.array([1,0.5,0.2,0.1,0.05,0.02,0.01,0.005,0.002,0.001,0.0005,0.0002,0.0001,0.00005,0.00002,0.00001,0.000005,0.000002,0.000001,0.0000005,0.0000002,0.0000001,0.00000005,0.00000002,0.00000001])  # $/kWh
         fix_cost_storage = np.array([1e-8])  # $/kWh

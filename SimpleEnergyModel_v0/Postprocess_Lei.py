@@ -5,7 +5,7 @@ Created by Lei at 27 March, 2018
 
 # -----------------------------------------------------------------------------
 
-import os,math,sys
+import os,sys
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -112,9 +112,15 @@ def get_multicases_results(res, num_case, var, *avg_option):
 def avg_series(var, num_case, beg_step, end_step, nstep, num_return):
     x = []
     y = []
-    for idx in range(num_case):
-        hor_mean = np.mean(var[idx][beg_step-1:end_step].reshape(-1,nstep),axis=1)
-        ver_mean = np.mean(var[idx][beg_step-1:end_step].reshape(-1,nstep),axis=0)
+    if num_case > 1:
+        for idx in range(num_case):
+            hor_mean = np.mean(var[idx][beg_step-1:end_step].reshape(-1,nstep),axis=1)
+            ver_mean = np.mean(var[idx][beg_step-1:end_step].reshape(-1,nstep),axis=0)
+            x.append(hor_mean)
+            y.append(ver_mean)
+    else:
+        hor_mean = np.mean(var[beg_step-1:end_step].reshape(-1,nstep),axis=1)
+        ver_mean = np.mean(var[beg_step-1:end_step].reshape(-1,nstep),axis=0)
         x.append(hor_mean)
         y.append(ver_mean)
     if num_return == 1:
@@ -532,20 +538,21 @@ def stack_plot2(
     # --- data preparation ---
     num_time_periods = len(res[0]['demand'])
     
-    var1 = get_multicases_results(res, num_case , select_case[0][0])
-    var2 = get_multicases_results(res, num_case , select_case[0][1])
-    
     find_case_idx = False
     if select_case:
+        var1 = get_multicases_results(res, num_case , select_case[0][0])
+        var2 = get_multicases_results(res, num_case , select_case[0][1])
         for idx in range(num_case):
             if var1[idx] == select_case[1][0] and var2[idx] == select_case[1][1]:
                 find_case_idx = True
                 case_idx = idx
-    if find_case_idx: 
-        print 'Find case index:', case_idx
-    else:
-        print 'Error: no such case'
-        sys.exit(0)
+                break
+                
+        if find_case_idx: 
+            print 'Find case index:', case_idx
+        else:
+            print 'Error: no such case'
+            sys.exit(0)
         
     if find_case_idx == False:
         case_idx = 0
@@ -741,6 +748,190 @@ def contour_plot(res,num_case,case_name):
 
 
 
+# --------- battery plot
+    
+def battery_TP(xaxis, mean_residence_time, max_residence_time, max_headroom):
+    
+    y1 = np.squeeze(avg_series(mean_residence_time, 1, 1,8640,24,1))
+    y2 = np.squeeze(avg_series(max_residence_time,  1, 1,8640,24,1))
+    y3 = np.squeeze(avg_series(max_headroom,        1, 1,8640,24,1))
+    
+    fig = plt.figure()
+    fig.subplots_adjust(top=1, left=0.0, right=1, hspace=0.7, wspace=0.35)
+
+    ax1 = plt.subplot2grid((2,1),(0,0),rowspan=1, colspan=1)
+    ax1v = ax1.twinx()
+    ln1 = ax1.stackplot(xaxis, y1, colors ='g', baseline = 'zero', alpha=0.5, labels=['Mean residence time'])
+    ln2 = ax1.plot(xaxis,      y2, c = 'green', alpha=0.5,    label='Max energy storage (kWh/kW)')
+    ln3 = ax1v.plot(xaxis,     y3, c = 'red',   alpha=0.5,    label='Max headroom ')
+    
+    lns = ln1+ln2+ln3
+    labs = [l.get_label() for l in lns]
+    leg = ax1.legend(lns, labs, loc='center left', ncol=1, 
+                     bbox_to_anchor=(1.07, 0.5), prop={'size': 5})
+    leg.get_frame().set_alpha(0.4)
+    #for label in ax1.xaxis.get_ticklabels():
+    #    label.set_rotation(45)
+    
+    ax1.set_title('(Left) battery storage required to satisfy demand at each hour hour\n'+\
+                  '(Right) maximum headroom required to satisfy demand at each hour hour',
+                  fontsize = 10)
+    ax1.set_xlabel('time step (day)')
+    plt.setp(ax1.get_xticklabels(), size=7)
+    plt.setp(ax1.get_yticklabels(), size=7, color='green')
+    plt.setp(ax1v.get_yticklabels(), size=7, color='red')
+    
+    # ---
+    array_to_draw = y1
+    ax2 = plt.subplot2grid((2,1),(1,0),rowspan=1, colspan=1)
+    weights = np.ones_like(array_to_draw)/float(len(array_to_draw))
+    ax2.hist(array_to_draw, 50, weights=weights, label = 'Frequency distribution of\nmean residence time')
+    leg = ax2.legend(loc='center left', ncol=1, 
+                     bbox_to_anchor=(1.07, 0.5), prop={'size': 5})
+    
+    ax2.set_title('Frequency of battery storage for demand at a particular hour')
+    ax2.set_xlabel('Battery storage (kWh/kW)')
+    plt.setp(ax2.get_xticklabels(), size=7)
+    plt.setp(ax2.get_yticklabels(), size=7)
+    
+    # ---
+    #plt.show()
+    plt.savefig(case_name+'_Battery.pdf',dpi=200,bbox_inches='tight',transparent=True)
+    plt.clf()
+    
+def battery_calculation(
+        num_time_periods,
+        dispatch_to_storage,
+        dispatch_from_storage,
+        energy_storage,
+        storage_charging_efficiency
+        ):
+    
+    start_point = 0.
+    for idx in range(num_time_periods):
+        if energy_storage[idx] == 0:
+            start_point = idx
+
+    lifo_stack = []
+    tmp = 0.
+    
+    for idx in range(num_time_periods-start_point):
+        idx = idx + start_point
+        tmp = tmp + dispatch_to_storage[idx] - dispatch_from_storage[idx]
+              
+        if dispatch_to_storage[idx] > 0:  # push on stack (with time moved up 1 cycle)
+            lifo_stack.append([idx-num_time_periods,dispatch_to_storage[idx]*storage_charging_efficiency ])
+                
+        if dispatch_from_storage[idx] > 0:
+            dispatch_remaining = dispatch_from_storage[idx]
+            while dispatch_remaining > 0:
+                #print len(lifo_stack),dispatch_from_storage[idx],dispatch_remaining
+                if len(lifo_stack) != 0:
+                    top_of_stack = lifo_stack.pop()
+                    if top_of_stack[1] > dispatch_remaining:
+                        # partial removal
+                        new_top = np.copy(top_of_stack)
+                        new_top[1] = new_top[1] - dispatch_remaining
+                        lifo_stack.append(new_top)
+                        dispatch_remaining = 0
+                    else:
+                        dispatch_remaining = dispatch_remaining - top_of_stack[1]
+                else:
+                    dispatch_remaining = 0 # stop while loop if stack is empty
+
+    # Now we have the stack as an initial condition and can do it for real
+    max_headroom = np.zeros(num_time_periods)
+    mean_residence_time = np.zeros(num_time_periods)
+    max_residence_time = np.zeros(num_time_periods)
+    
+    for idx in range(num_time_periods):
+                
+        max_head = 0
+        mean_res = 0
+        max_res = 0
+        
+        if dispatch_to_storage[idx] > 0:  # push on stack
+            lifo_stack.append([idx,dispatch_to_storage[idx]*storage_charging_efficiency ])
+                
+        if dispatch_from_storage[idx] > 0:
+            dispatch_remaining = dispatch_from_storage[idx]
+            accum_time = 0
+            while dispatch_remaining > 0:
+                if lifo_stack != []:
+                    top_of_stack = lifo_stack.pop()
+                    if top_of_stack[1] > dispatch_remaining:
+                        # partial removal
+                        accum_time = accum_time + dispatch_remaining * (idx - top_of_stack[0])
+                        new_top = np.copy(top_of_stack)
+                        new_top[1] = new_top[1] - dispatch_remaining
+                        lifo_stack.append(new_top) # put back the remaining power at the old time
+                        dispatch_remaining = 0
+                    else: 
+                        # full removal of top of stack
+                        accum_time = accum_time + top_of_stack[1] * (idx - top_of_stack[0])
+                        dispatch_remaining = dispatch_remaining - top_of_stack[1]
+                else:
+                    dispatch_remaining = 0 # stop while loop if stack is empty
+            
+            mean_res = accum_time / dispatch_from_storage[idx]
+            max_res = idx - top_of_stack[0]
+            # maximum headroom needed is the max of the storage between idx and top_of_stack[0]
+            #    minus the amount of storage at time idx + 1
+            energy_vec = np.concatenate([energy_storage,energy_storage,energy_storage])
+            max_head = np.max(energy_vec[int(top_of_stack[0]+num_time_periods):int(idx + 1+num_time_periods)]) - energy_vec[int(idx + 1 + num_time_periods)]   # dl-->could be negative?
+            
+        max_headroom[idx] = max_head
+        mean_residence_time[idx] = mean_res
+        max_residence_time[idx] = max_res
+    
+    return max_headroom,mean_residence_time,max_residence_time
+    
+def battery_plot(res,
+                 num_case,
+                 case_name,
+                 multipanels,
+                 *select_case):
+    
+    # --- multi case plot
+    num_time_periods = len(res[0]['demand'])
+    
+    find_case_idx = False
+    if select_case:
+        var1 = get_multicases_results(res, num_case , select_case[0][0])
+        var2 = get_multicases_results(res, num_case , select_case[0][1])
+        for idx in range(num_case):
+            if var1[idx] == select_case[1][0] and var2[idx] == select_case[1][1]:
+                find_case_idx = True
+                case_idx = idx
+                break
+                
+        if find_case_idx: 
+            print 'Find case index:', case_idx
+        else:
+            print 'Error: no such case'
+            sys.exit(0)
+        
+    if find_case_idx == False:
+        case_idx = 0
+    
+    dispatch_to_storage         = get_multicases_results(res, num_case, 'dispatch_to_storage')[case_idx]
+    dispatch_from_storage       = get_multicases_results(res, num_case, 'dispatch_from_storage')[case_idx]
+    energy_storage              = get_multicases_results(res, num_case, 'energy_storage')[case_idx]
+    storage_charging_efficiency = get_multicases_results(res, num_case, 'storage_charging_efficiency')[case_idx]
+    
+    max_headroom, mean_residence_time, max_residence_time = battery_calculation(num_time_periods,
+                                                                                dispatch_to_storage,
+                                                                                dispatch_from_storage,
+                                                                                energy_storage,
+                                                                                storage_charging_efficiency)
+    
+    xaxis = np.arange(360)+1
+    battery_TP(xaxis,mean_residence_time,max_residence_time,max_headroom)
+    
+    
+        
+
+
 #===============================================================================
 #================================================== EXECUTION SECTION ==========
 #===============================================================================
@@ -760,7 +951,7 @@ file_path_stack = '/Users/leiduan/Desktop/File/phd/phd_7/CIS_work/Energy_optimiz
 file_path_contour = '/Users/leiduan/Desktop/File/phd/phd_7/CIS_work/Energy_optimize_model/WORK/Results' + \
                     '/Mengyao_data/one_year_simulations_contour/'
             
-switch = 'stack'     # stack(x2) or contour(x1)
+switch = 'battery'     # stack(x2) or contour(x1) or both(x3)
 multipanel = True    # please set to True for now
 scenario_name = 'no_ng_fixed_nuc.pickle'  # Which scenario do you want? set to scenario_name or all for all scenarios
 
@@ -772,9 +963,11 @@ select_case2 = [0.05 ,  0.001]
 
 
 
+
+
 #########  make changes above, not below #########
 
-if switch == 'stack':
+if switch == 'stack' or switch == 'battery':
     file_path = file_path_stack
     file_list = os.listdir(file_path)
 elif switch == 'contour':
@@ -813,5 +1006,12 @@ for file in file_list:
             stack_plot2(res, num_case, case_name,multipanel, select_case1, select_case2)
         elif switch == 'contour':
             contour_plot(res,num_case, case_name)
-
+        elif switch == 'battery':
+            battery_plot(res,num_case,case_name, multipanel, select_case1, select_case2)
+        elif switch == 'both':
+            #stack_plot1(res, num_case, case_name,multipanel)
+            stack_plot2(res, num_case, case_name,multipanel, select_case1, select_case2)
+            contour_plot(res,num_case, case_name)
+        else:
+            print 'not supported plot'
 

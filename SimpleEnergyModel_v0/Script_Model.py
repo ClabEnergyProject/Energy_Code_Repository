@@ -27,6 +27,7 @@ Created on Mon Dec 11 17:24:28 2017
 
 from Core_Model import core_model_loop
 from Preprocess_Input import preprocess_input
+from Postprocess_Results import post_process
 #from Postprocess_Results_kc180214 import postprocess_key_scalar_results,merge_two_dicts
 from Save_Basic_Results import save_basic_results
 import subprocess
@@ -48,6 +49,7 @@ hour_simulation_start = 0
 hours_of_simulation = 8640 # 1 year
 
 verbose = True # print output on each loop
+switch_postprocess = True
 
 # =============================================================================
 
@@ -104,6 +106,6 @@ for case_switch in case_list:
         time_series,
         assumption_list,
         result_list,
-        verbose) 
-
-             
+        verbose)
+    if switch_postprocess == True:
+        post_process(file_info)

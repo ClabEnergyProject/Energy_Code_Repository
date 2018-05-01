@@ -121,8 +121,10 @@ def preprocess_input(
         fix_cost_storage = np.array([0.016])    # $/kW per hour
     
         var_cost_natgas  = np.array([0.030])    # $/kWh
-        var_cost_wind    = np.array([0.002])    # $/kWh
-        var_cost_solar   = np.array([0.001])    # $/kWh
+        var_cost_wind = np.array([2e-6])
+        var_cost_solar = np.array([1e-6])
+#        var_cost_wind    = np.array([0.002])    # $/kWh
+#        var_cost_solar   = np.array([0.001])    # $/kWh
         var_cost_nuclear  = np.array([0.001])   # $/kWh
         var_cost_unmet_demand = np.array([10])  # $/kWh 
         var_cost_storage = np.array([1e-8])     # $/kWh (small value to prevent unnecessary use of battery)

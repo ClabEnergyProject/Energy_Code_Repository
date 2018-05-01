@@ -24,10 +24,13 @@ version: _my180406
 
 updates:
     (a) for wind and solar, set dispatch + curtailment == capacity * capacity_factor
-        (i) in previous versions, dispatch <= capacity * capacity_factor
-            --> "double counting" of capacity factor
+        (i) in previous versions, dispatch <= capacity * capacity_factor, and curtailment is calculated after optimization
+            --> "free" curtailment - cost of curtailment not subject to cost minimization
         (ii) underlying assumption: using data from Shaner et al., 2018 - can change to other sources
-    (b) included curtailment of wind, solar, and nuclear as decision variables 
+    (b) included curtailment of wind, solar, and nuclear as decision variables
+        --> alternatively, can model curtailment by calculating variable cost using "total potential capacity" 
+            (capacity * capacity_factor) instead of dispatch ("used generation"), but this does not offer flexibility 
+            for including dispatchable vs. nondispatchable nuclear
     (c) added flag (flex_nuc_flag) for choosing constraints for nuclear depending on whether nuclear is assumed to be flexible or fixed
     
 to-dos:

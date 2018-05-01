@@ -11,9 +11,9 @@ version: _my180406
     modified from _my180403 for preliminary analysis of nuclear vs. renewables 
 
 updates:
-    added flex_nuc_flag and curtailment (wind, solar, and nuclear) to output files
-    switched headers for wind and solar capacity factors
-    moved column "var cost storage" after "var cost from dispatch" to be consistent with order of storage results - for ease of cost calculation
+    (a) added flex_nuc_flag and curtailment (wind, solar, and nuclear) to output files
+    (b) switched headers for wind and solar capacity factors
+    (c) moved column "var cost storage" after "var cost from dispatch" to be consistent with order of storage results - for ease of cost calculation
     
 to-dos:
     clarify meaning of "wind capacity (kW)" and "solar capacity (kW)" - see notes

@@ -12,8 +12,8 @@ version: _my180406
     modified from _my180403 for preliminary analysis of nuclear vs. renewables 
     
 updates:    
-    updated case list
-    changed folder and file names to be consistent with this version
+    (a) updated case list
+    (b) changed folder and filenames to be consistent with this version
 
 """
 

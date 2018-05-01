@@ -13,7 +13,7 @@ version: _my180406
     modified from _Lei180401 for preliminary analysis of nuclear vs. renewables 
     
 to-dos: 
-    (a) time-series data have 8640 hours instead of 8760 hours - why?
+    (a) time-series data have 8640 hours instead of 8760 hours - will change simulation time
     (b) how to differentiate over-generation to curtailment or to storage? - currently double-counting generation to storage
     
 """

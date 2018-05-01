@@ -18,7 +18,7 @@ to-dos:
     (b) read "original" cost and efficiency data as input from .csv files (instead of "hardwiring" assumptions)?
     (c) use consistent discounting method - currently using mix of exponential and linear methods
     (d) confirm units of costs used in script and output files - see notes
-    (e) normalize wind and solar capacity to demand? - same as setting dispatch == capacity * capacity_factor?
+    (e) normalize wind and solar capacity to demand? - clarify: same as setting dispatch == capacity * capacity_factor?
     (f) put cost assumptions inside each "if" section instead of having set of one-for-all costs    
     
 """

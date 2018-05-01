@@ -14,6 +14,9 @@ version: _my180406
 updates:    
     (a) updated case list
     (b) changed folder and filenames to be consistent with this version
+    
+to-dos:
+    change simulation time to 8760 hours
 
 """
 
